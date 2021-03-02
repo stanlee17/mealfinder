@@ -1,14 +1,12 @@
-const search = document.getElementById('search'),
-  submit = document.getElementById('submit'),
-  random = document.getElementById('random'),
-  meals = document.getElementById('meals'),
-  resultHeading = document.getElementById('result-heading'),
-  singleMeal = document.getElementById('single-meal')
+const search = document.getElementById('search')
+const resultHeading = document.getElementById('result-heading')
+const meals = document.getElementById('meals')
+const submit = document.getElementById('submit')
+const random = document.getElementById('random')
+const singleMeal = document.getElementById('single-meal')
 
 // Search meal and fetch from API
 const searchMeal = (e) => {
-  e.preventDefault()
-
   // Clear single meal
   singleMeal.innerHTML = ''
 
@@ -20,11 +18,13 @@ const searchMeal = (e) => {
     fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${term}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data)
-        resultHeading.innerHTML = `<h2>Search results for ${term}:</h2>`
+        resultHeading.innerHTML = `<h2>Search results for: <span class="search-term">${term}</span></h2>`
 
         if (data.meals === null) {
-          resultHeading.innerHTML = `<p>There are no search results. Try again!</p>`
+          resultHeading.innerHTML = `<p class="error">There are no search results. Try again!</p>`
+
+          // Clear search meals
+          meals.innerHTML = ''
         } else {
           meals.innerHTML = data.meals
             .map(
@@ -44,8 +44,10 @@ const searchMeal = (e) => {
     // Clear search text
     search.value = ''
   } else {
-    alert('Please enter a search term')
+    resultHeading.innerHTML = `<p class="error">Please enter a search term.</p>`
   }
+
+  e.preventDefault()
 }
 
 // Fetch meal by ID
@@ -59,13 +61,28 @@ const getMealById = (mealID) => {
     })
 }
 
+// Fetch random meal from API
+const getRandomMeal = () => {
+  // Clear meals and heading
+  meals.innerHTML = ''
+  resultHeading.innerHTML = ''
+
+  fetch(`https://www.themealdb.com/api/json/v1/1/random.php`)
+    .then((res) => res.json())
+    .then((data) => {
+      const meal = data.meals[0]
+
+      addMealToDOM(meal)
+    })
+}
+
 const addMealToDOM = (meal) => {
   const ingredients = []
 
   for (let i = 1; i <= 20; i++) {
-    if (meal[`strIngredients${i}`]) {
+    if (meal[`strIngredient${i}`]) {
       ingredients.push(
-        `${meal[`strIngredient${i} - ${meal[`strMeasure${i}`]}`]}`,
+        `${meal[`strIngredient${i}`]} - ${meal[`strMeasure${i}`]}`,
       )
     } else {
       break
@@ -91,9 +108,13 @@ const addMealToDOM = (meal) => {
   `
 }
 
-// Event Listeners
+// Search Meal Event Listener
 submit.addEventListener('submit', searchMeal)
 
+// Random Meal Event Listener
+random.addEventListener('click', getRandomMeal)
+
+// Get Meal Info Event Listener
 meals.addEventListener('click', (e) => {
   const mealInfo = e.path.find((item) => {
     if (item.classList) {
