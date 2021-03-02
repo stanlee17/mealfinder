@@ -1,2 +1,2 @@
 # Mealfinder
-A small project intended to practice vanilla javascript api & dom manipulation.
+A small project intended for practicing vanilla javascript api & dom manipulation.
